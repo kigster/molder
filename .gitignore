@@ -1,0 +1,17 @@
+*.gem
+*.rbc
+.bundle
+.config
+.yardoc
+InstalledFiles
+_yardoc
+Gemfile.lock
+coverage
+pkg
+doc
+spec/reports
+tmp
+vendor/
+**/.DS_Store
+.idea/
+log/
