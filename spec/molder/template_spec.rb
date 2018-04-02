@@ -20,10 +20,12 @@ module Molder
 
     its(:class) { should eq described_class }
     its(:attributes) { should include 'run_list' }
+
     context 'run_list' do
       subject { template.attributes['run_list'] }
       its(:class) { should be String }
       it { is_expected.to eq('role[base],role[web]')}
     end
+
   end
 end

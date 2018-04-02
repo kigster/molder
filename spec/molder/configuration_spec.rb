@@ -13,5 +13,7 @@ module Molder
       its(:templates) { should include 'web-a' }
       its(:commands) { should include 'provision' }
     end
+
+
   end
 end

@@ -95,7 +95,7 @@ commands:
         -r {{ run_list }}
         -S {{ ssh_key }}
         -i {{ identity_file }}
-        --ssh-user {{ ssh_user }}; sleep 2
+        --ssh-user {{ ssh_user }}
 
 
 

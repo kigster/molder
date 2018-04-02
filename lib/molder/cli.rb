@@ -118,6 +118,9 @@ module Molder
         opts.on('-n', '--dry-run',
                 'Don\'t actually run commands, just print them') { |_value| options[:dry_run] = true }
 
+        opts.on('-v', '--verbose',
+                'Print more output') { |_value| options[:verbose] = true }
+
         opts.on('-b', '--backtrace',
                 'Show error stack trace if available') { |_value| options[:backtrace] = true }
 

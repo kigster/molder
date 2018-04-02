@@ -21,20 +21,20 @@ module Molder
     end
 
     def execute!
-      if options[:dry_run]
-        commands.each { |c| puts c }
-      else
         colors = %i(yellow blue red green magenta cyan white)
 
         FileUtils.mkdir_p(log_dir)
-        puts "Executing #{commands.size} commands in #{options.max_processes} processes:                                   \n".bold.cyan.underlined
-        ::Parallel.each((1..commands.size), :in_processes => options.max_processes) do |i|
+        puts "Executing #{commands.size} commands using a pool of up to #{options.max_processes} processes:\n".bold.cyan.underlined
+        ::Parallel.each((1..commands.size),
+                        :in_processes => options.max_processes) do |i|
+
           color = colors[(i - 1) % colors.size]
           cmd   = commands[i - 1]
-          printf " Worker: #{Parallel.worker_number}\nCommand: ".send(color) if options.verbose
+
+          printf('%s', "Worker: #{Parallel.worker_number}, command #{i}\n".send(color)) if options.verbose
           puts "#{cmd}\n".send(color)
-          system %Q(( #{cmd} ) > #{log_dir}/#{command_name}.#{i}.log)
-        end
+
+          system %Q(( #{cmd} ) > #{log_dir}/#{command_name}.#{i}.log) unless options.dry_run
       end
     end
 

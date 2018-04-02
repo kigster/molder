@@ -72,8 +72,13 @@ module Molder
 
     # Render given content using expanded params.
     def render(params)
-      attributes = expand_arguments(Hashie.stringify_keys(params.to_h))
-      Liquid::Template.parse(template).render(attributes)
+      attributes      = expand_arguments(Hashie.stringify_keys(params.to_h))
+      liquid_template = Liquid::Template.parse(template)
+      liquid_template.render(attributes, { strict_variables: true }).tap do
+        unless liquid_template.errors.empty?
+          raise LiquidTemplateError, "#{liquid_template.errors.map(&:message).join("\n")}"
+        end
+      end.gsub(/\n/, ' ').gsub(/\s{2,}/, ' ').strip
     rescue ArgumentError => e
       raise UnresolvedReferenceError.new(e)
     end

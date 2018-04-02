@@ -8,7 +8,7 @@ module Molder
       self.name       = name
       self.indexes    = indexes
       self.command    = command
-      self.attributes = normalize(attributes)
+      self.attributes = self.class.normalize(attributes)
     end
 
     def each_command
@@ -16,12 +16,12 @@ module Molder
         self.attributes[:number] = i
         self.attributes[:formatted_number] = sprintf(config.global.index_format, i)
         ::Molder::Renderer.new(command.args).render(attributes.dup).tap do |cmd|
-          yield(cmd.gsub(/\n/, ' ').gsub(/\s{2,}/, ' ')) if block_given?
+          yield(cmd) if block_given?
         end
       end
     end
 
-    def normalize(attrs)
+    def self.normalize(attrs)
       override = {}
       attrs.each_pair do |key, value|
         if value.is_a?(Hash) && value.values.compact.empty?
