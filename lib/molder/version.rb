@@ -1,5 +1,5 @@
 module Molder
-  VERSION = '0.1.1'.freeze
+  VERSION = '0.1.2'.freeze
   DESCRIPTION = <<-eof
     Molder is a command line tool for generating and running·
     (in parallel) a set of related but similar commands. A key·

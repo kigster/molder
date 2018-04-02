@@ -19,6 +19,7 @@ module Molder
       self.argv << '-h' if argv.empty?
 
       parser.parse!(self.argv)
+      exit(0) if options.help
 
       pre_parse!
 
@@ -44,8 +45,6 @@ module Molder
     end
 
     def execute!
-      exit(0) if options.help
-
       exit_code = begin
         $stderr = @stderr
         $stdin  = @stdin
