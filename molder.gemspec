@@ -8,7 +8,7 @@ module Molder
 Molder is a command line tool for generating and running 
 (in parallel) a set of related but similar commands. A key 
 use-case is auto-generation of the host provisioning commands 
-for an arbitary cloud environment. The gem is not constrained 
+for an arbitrary cloud environment. The gem is not constrained 
 to any particular cloud tool or even a command, and can be used 
 to generate a consistent set of commands based on several customizable 
 dimensions. For example, you could generate 600 provisioning commands

@@ -1,8 +1,9 @@
 # Molder
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/molder`. To experiment with that code, run `bin/console` for an interactive prompt.
+Molder is a command line tool for generating and running (in parallel) a set of related but similar commands. A key
+use-case is auto-generation of the host provisioning commands for an arbitrary cloud environment. The gem is not constrained to any particular cloud tool or even a command, and can be used to generate a consistent set of commands based on several customizable dimensions.
 
-TODO: Delete this and the text above, and describe your gem
+For example, you could generate 600 provisioning commands for hosts in EC2, numbered from 1 to 100, constrained to the dimensions "zone-id" (values: ["a", "b", "c"]) and the data center "dc" (values: ['us-west2', 'us-east1' ]).
 
 ## Installation
 
@@ -22,7 +23,34 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+
+```bash
+DESCRIPTION
+    Molder is a template based command generator for cases where you need
+    generate many similar and yet somewhat different commands.
+
+USAGE
+    molder [-c config/molder.yml] [options]
+    molder command name1[n1..n2]/name2[n1,n2,..]/... [-c config/molder.yml] [options]
+
+EXAMPLES
+    molder -c config/molder.yml web[1,3,5]/sidekiq[3..5]
+    molder -c config/molder.yml -n web/sidekiq -i 1..5
+
+OPTIONS:
+    -c, --config [file]              Main YAML configuration file
+        --name [n1/n2/..]            Names of the templates to use
+    -i, --index [range/array]        Numbers to use in generating commands
+                                     Can be a comma-separated list of values,
+                                     or a range, eg "1..5"
+    -o, --override [k1=v1/k2=v2/..]  Override values in the config
+    -m, --max-processes [number]     Do not start more than this many processes at once
+    -l, --log-dir [dir]              Directory where STDOUT of running commands is save
+    -n, --dry-run                    Don't actually run commands, just print them
+    -b, --backtrace                  Show error stack trace if available
+    -h, --help                       Show help
+```
+
 
 ## Development
 
@@ -32,7 +60,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/molder.
+Bug reports and pull requests are welcome on GitHub at https://github.com/kigster/molder.
 
 ## License
 
