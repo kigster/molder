@@ -1,6 +1,5 @@
 require 'hashie/mash'
 require 'hashie/extensions/mash/symbolize_keys'
-require 'dry-configurable'
 require 'molder/errors'
 require 'parallel'
 require 'fileutils'

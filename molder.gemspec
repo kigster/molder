@@ -24,16 +24,12 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'hashie'
   spec.add_dependency 'colored2'
   spec.add_dependency 'parallel'
-  spec.add_dependency 'dry-configurable'
   spec.add_dependency 'require_dir', '~> 2'
 
   spec.add_development_dependency 'simplecov'
   spec.add_development_dependency 'awesome_print'
-  spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'yard'
   spec.add_development_dependency 'rspec', '~> 3'
   spec.add_development_dependency 'rspec-its'
-  spec.add_development_dependency 'aruba'
-  spec.add_development_dependency 'aruba-doubles'
 end

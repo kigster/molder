@@ -11,7 +11,6 @@ SimpleCov.start
 require 'rspec'
 require 'rspec/its'
 require 'awesome_print'
-require 'aruba-doubles'
 require 'molder'
 require 'support/helpers'
 
@@ -25,15 +24,5 @@ RSpec.configure do |config|
   #     --seed 1234
   config.order = 'random'
 
-  config.include ArubaDoubles
-
-  config.before :each, aruba: true do
-    ArubaDoubles::Double.setup
-  end
-
-  config.after :each, aruba: true do
-    ArubaDoubles::Double.teardown
-    history.clear
-  end
 end
 

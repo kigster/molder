@@ -1,7 +1,6 @@
 require 'yaml'
 require 'hashie/mash'
 require 'hashie/extensions/parsers/yaml_erb_parser'
-require 'dry-configurable'
 
 module Molder
   class Configuration < Hashie::Mash
