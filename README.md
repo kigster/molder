@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/kigster/molder.svg?branch=master)](https://travis-ci.org/kigster/molder)
+
 # Molder
 
 Molder is a command line tool for generating and running (in parallel) a set of related but similar commands. A key
