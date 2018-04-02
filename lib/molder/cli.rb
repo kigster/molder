@@ -51,6 +51,7 @@ module Molder
         $stdout = @stdout
 
         App.new(config: config, options: options, command_name: command).execute!
+
         0
       rescue StandardError => e
         report_error(exception: e)
@@ -79,20 +80,27 @@ module Molder
     end
 
     def parser
-      OptionParser.new do |opts|
-        opts.separator 'OPTIONS:'.bold.blue
-        opts.on('-c', '--config [file]', 'Main YAML configuration file') do |config|
-          options[:config] = config
-        end
-        opts.on('-n', '--name [n1/n2/..]', 'Names of the templates to use') do |value|
+      OptionParser.new(nil, 35) do |opts|
+        opts.separator 'OPTIONS:'.bold.yellow
+
+        opts.on('-c', '--config [file]',
+                'Main YAML configuration file') { |config| options[:config] = config }
+
+        opts.on('-t', '--template [n1/n2/..]',
+                'Names of the templates to use') do |value|
           options[:names] ||= Hashie::Mash.new
           value.split('/').each { |arg| parse_templates(arg) }
         end
-        opts.on('-i', '--index [range/array]', 'Numbers to use in generating commands',
-                'Can be a comma-separated list of values,', 'or a range, eg "1..5"') do |value|
+
+        opts.on('-i', '--index [range/array]',
+                'Numbers to use in generating commands',
+                'Can be a comma-separated list of values,',
+                'or a range, eg "1..5"') do |value|
           options[:indexes] = index_expression_to_array(value)
         end
-        opts.on('-o', '--override [k1=v1/k2=v2/..]', 'Override values in the config') do |value|
+
+        opts.on('-a', '--attrs [k1=v1/k2=v2/...]',
+                'Provide additional attributes, or override existing ones') do |value|
           h = {}
           value.split('/').each do |pair|
             key, value = pair.split('=')
@@ -100,35 +108,45 @@ module Molder
           end
           options[:override] = h
         end
-        opts.on('-m', '--max-processes [number]', 'Do not start more than this many processes at once') do |value|
-          options[:max_processes] = value.to_i
-        end
-        opts.on('-l', '--log-dir [dir]', 'Directory where STDOUT of running commands is saved') do |value|
-          options[:log_dir] = value
-        end
-        opts.on('-n', '--dry-run', 'Don\'t actually run commands, just print them') do |_value|
-          options[:dry_run] = true
-        end
-        opts.on('-b', '--backtrace', 'Show error stack trace if available') do |_value|
-          options[:backtrace] = true
-        end
-        opts.on('-h', '--help', 'Show help') do
+
+        opts.on('-m', '--max-processes [number]',
+                'Do not start more than this many processes at once') { |value| options[:max_processes] = value.to_i }
+
+        opts.on('-l', '--log-dir [dir]',
+                'Directory where STDOUT of running commands is saved') { |value| options[:log_dir] = value }
+
+        opts.on('-n', '--dry-run',
+                'Don\'t actually run commands, just print them') { |_value| options[:dry_run] = true }
+
+        opts.on('-b', '--backtrace',
+                'Show error stack trace if available') { |_value| options[:backtrace] = true }
+
+        opts.on('-h', '--help',
+                'Show help') do
           @stdout.puts opts
           options[:help] = true
         end
+
       end.tap do |p|
         p.banner = <<-eof
-#{'DESCRIPTION'.bold.blue}
-    Molder is a template based command generator for cases where you need
-    generate many similar and yet somewhat different commands.
+#{'DESCRIPTION'.bold.yellow}
+    Molder is a template based command generator and runner for cases where you need to 
+    generate many similar and yet somewhat different commands, defined in the 
+    YAML template. Please read #{'https://github.com/kigster/molder'.bold.blue.underlined} for 
+    a detailed explanation of the config file structure.
 
-#{'USAGE'.bold.blue}
-    molder [-c config/molder.yml] [options]
-    molder command name1[n1..n2]/name2[n1,n2,..]/... [-c config/molder.yml] [options] 
+    Note that the default configuration file is #{Molder::Configuration::DEFAULT_CONFIG.bold.green}. 
 
-#{'EXAMPLES'.bold.blue}
-    molder -c config/molder.yml web[1,3,5]/sidekiq[3..5]
-    molder -c config/molder.yml -n web/sidekiq -i 1..5
+#{'USAGE'.bold.yellow}
+    #{'molder [-c config.yml] command template1[n1..n2]/template2[n1,n2,..]/...  [options]'.bold.blue} 
+    #{'molder [-c config.yml] command -t template -i index [options]'.blue.bold}
+
+#{'EXAMPLES'.bold.yellow}
+    #{'# The following commands assume YAML file is in the default location:'.bold.black}
+    #{'molder provision web[1,3,5]'.bold.blue}
+
+    #{'# -n flag means dry run — so instead of running commands, just print them:'.bold.black}
+    #{'molder provision web[1..4]/job[1..4] -n'.bold.blue}
 
         eof
       end

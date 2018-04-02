@@ -6,14 +6,12 @@ module Molder
     subject(:config) { described_class.load(file) }
 
     its(:class) { should eq described_class }
-    its(:global) { should include 'organization' }
+    its(:global) { should include 'log_dir' }
 
     context 'default_config' do
       subject { described_class.default }
       its(:templates) { should include 'web-a' }
       its(:commands) { should include 'provision' }
     end
-
-
   end
 end
