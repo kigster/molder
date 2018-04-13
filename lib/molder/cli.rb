@@ -7,6 +7,11 @@ require 'etc'
 module Molder
   class CLI
     attr_accessor :argv, :original_argv, :options, :config, :command
+    attr_reader :stdout, :stdin, :stderr, :kernel
+
+    class << self
+      attr_accessor :instance
+    end
 
     def initialize(argv, stdin = STDIN, stdout = STDOUT, stderr = STDERR, kernel = Kernel)
       @argv, @stdin, @stdout, @stderr, @kernel = argv, stdin, stdout, stderr, kernel
@@ -15,12 +20,46 @@ module Molder
       self.options[:max_processes] = Etc.nprocessors - 2
       self.argv                    = argv.dup
       self.original_argv           = argv.dup
+      self.class.instance          = self
+    end
+
+    def execute!
 
       self.argv << '-h' if argv.empty?
 
       parser.parse!(self.argv)
-      exit(0) if options.help
 
+      if options.help
+        @kernel.exit(0)
+        return
+      end
+
+      exit_code = begin
+        $stderr = @stderr
+        $stdin  = @stdin
+        $stdout = @stdout
+
+        parse_args!
+
+        App.new(config: config, options: options, command_name: command).execute!
+
+        0
+      rescue StandardError => e
+        report_error(exception: e)
+        1
+      rescue SystemExit => e
+        e.status
+      ensure
+        $stderr = STDERR
+        $stdin  = STDIN
+        $stdout = STDOUT
+      end
+      @kernel.exit(exit_code)
+    end
+
+    private
+
+    def parse_args!
       pre_parse!
 
       if options.indexes
@@ -43,30 +82,6 @@ module Molder
                       Configuration.default
                     end
     end
-
-    def execute!
-      exit_code = begin
-        $stderr = @stderr
-        $stdin  = @stdin
-        $stdout = @stdout
-
-        App.new(config: config, options: options, command_name: command).execute!
-
-        0
-      rescue StandardError => e
-        report_error(exception: e)
-        1
-      rescue SystemExit => e
-        e.status
-      ensure
-        $stderr = STDERR
-        $stdin  = STDIN
-        $stdout = STDOUT
-      end
-      @kernel.exit(exit_code)
-    end
-
-    private
 
     def pre_parse!
       if argv[0] && !argv[0].start_with?('-')
@@ -141,15 +156,15 @@ module Molder
     Note that the default configuration file is #{Molder::Configuration::DEFAULT_CONFIG.bold.green}. 
 
 #{'USAGE'.bold.yellow}
-    #{'molder [-c config.yml] command template1[n1..n2]/template2[n1,n2,..]/...  [options]'.bold.blue} 
-    #{'molder [-c config.yml] command -t template -i index [options]'.blue.bold}
+        #{'molder [-c config.yml] command template1[n1..n2]/template2[n1,n2,..]/...  [options]'.bold.blue}
+        #{'molder [-c config.yml] command -t template -i index [options]'.blue.bold}
 
-#{'EXAMPLES'.bold.yellow}
-    #{'# The following commands assume YAML file is in the default location:'.bold.black}
-    #{'molder provision web[1,3,5]'.bold.blue}
+        #{'EXAMPLES'.bold.yellow}
+        #{'# The following commands assume YAML file is in the default location:'.bold.black}
+        #{'molder provision web[1,3,5]'.bold.blue}
 
-    #{'# -n flag means dry run — so instead of running commands, just print them:'.bold.black}
-    #{'molder provision web[1..4]/job[1..4] -n'.bold.blue}
+        #{'# -n flag means dry run — so instead of running commands, just print them:'.bold.black}
+        #{'molder provision web[1..4]/job[1..4] -n'.bold.blue}
 
         eof
       end

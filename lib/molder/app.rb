@@ -24,21 +24,33 @@ module Molder
         colors = %i(yellow blue red green magenta cyan white)
 
         FileUtils.mkdir_p(log_dir)
-        puts "Executing #{commands.size} commands using a pool of up to #{options.max_processes} processes:\n".bold.cyan.underlined
-        ::Parallel.each((1..commands.size),
-                        :in_processes => options.max_processes) do |i|
+        if options.dry_run
+          puts "\nDry-run print of #{commands.size} commands:\n".bold.cyan.underlined
+          commands.count.times do |i|
+            color = colors[i % colors.size]
+            cmd   = commands[i ]
+            puts "#{cmd}\n".send(color).send(:bold)
+          end
+        else
+          puts "Executing #{commands.size} commands using a pool of up to #{options.max_processes} processes:\n".bold.cyan.underlined
+          ::Parallel.each((1..commands.size),
+                          :in_processes => options.max_processes) do |i|
 
-          color = colors[(i - 1) % colors.size]
-          cmd   = commands[i - 1]
+            color = colors[(i - 1) % colors.size]
+            cmd   = commands[i - 1]
+            printf('%s', "Worker: #{Parallel.worker_number}, command #{i}\n".send(color)) if options.verbose
+            puts "#{cmd}\n".send(color)
 
-          printf('%s', "Worker: #{Parallel.worker_number}, command #{i}\n".send(color)) if options.verbose
-          puts "#{cmd}\n".send(color)
-
-          system %Q(( #{cmd} ) > #{log_dir}/#{command_name}.#{i}.log) unless options.dry_run
+            system %Q(( #{cmd} ) > #{log_dir}/#{command_name}.#{i}.log)
+        end
       end
     end
 
     private
+
+    def puts(*args)
+      ::Molder::CLI.instance.stdout.puts(*args)
+    end
 
     def resolve_templates!
       self.templates ||= []
