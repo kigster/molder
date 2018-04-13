@@ -4,7 +4,6 @@ rvm:
 - 2.3.6
 - 2.4.3
 - 2.5.0
-- 2.5.2
 cache:
 - bundler
 before_script:
