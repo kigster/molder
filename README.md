@@ -1,4 +1,7 @@
 [![Build Status](https://travis-ci.org/kigster/molder.svg?branch=master)](https://travis-ci.org/kigster/molder)
+[![Maintainability](https://api.codeclimate.com/v1/badges/853bd70fd12ab4a372d5/maintainability)](https://codeclimate.com/github/kigster/molder/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/853bd70fd12ab4a372d5/test_coverage)](https://codeclimate.com/github/kigster/molder/test_coverage)
+[![Version](https://badge.fury.io/rb/molder.svg)](https://rubygems.org/gems/molder)
 
 # Molder
 
