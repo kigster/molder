@@ -99,10 +99,10 @@ module Molder
         opts.separator 'OPTIONS:'.bold.yellow
 
         opts.on('-c', '--config [file]',
-                'Main YAML configuration file') { |config| options[:config] = config }
+                'Main YAML configuration file', ' ') { |config| options[:config] = config }
 
         opts.on('-t', '--template [n1/n2/..]',
-                'Names of the templates to use') do |value|
+                'Names of the templates to use', ' ') do |value|
           options[:names] ||= Hashie::Mash.new
           value.split('/').each { |arg| parse_templates(arg) }
         end
@@ -110,25 +110,30 @@ module Molder
         opts.on('-i', '--index [range/array]',
                 'Numbers to use in generating commands',
                 'Can be a comma-separated list of values,',
-                'or a range, eg "1..5"') do |value|
+                'or a range, eg "1..5"', ' ') do |value|
           options[:indexes] = index_expression_to_array(value)
         end
 
         opts.on('-a', '--attrs [k1=v1/k2=v2/...]',
-                'Provide additional attributes, or override existing ones') do |value|
+                'Provide additional attributes, or ',
+                'override existing ones. Can be used ',
+                'more than once on a command line', ' ') do |value|
           h = {}
           value.split('/').each do |pair|
             key, value = pair.split('=')
             h[key]     = value
           end
-          options[:override] = h
+          options[:override] ||= {}
+          options[:override].merge!(h)
         end
 
         opts.on('-m', '--max-processes [number]',
-                'Do not start more than this many processes at once') { |value| options[:max_processes] = value.to_i }
+                'Limit number of concurrent running processes',
+                'The default is the number of CPU cores', ' '
+                ) { |value| options[:max_processes] = value.to_i }
 
         opts.on('-l', '--log-dir [dir]',
-                'Directory where STDOUT of running commands is saved') { |value| options[:log_dir] = value }
+                'Folder where STDOUT of the commands is saved') { |value| options[:log_dir] = value }
 
         opts.on('-n', '--dry-run',
                 'Don\'t actually run commands, just print them') { |_value| options[:dry_run] = true }
@@ -147,24 +152,32 @@ module Molder
 
       end.tap do |p|
         p.banner = <<-eof
+        
 #{'DESCRIPTION'.bold.yellow}
-    Molder is a template based command generator and runner for cases where you need to 
-    generate many similar and yet somewhat different commands, defined in the 
-    YAML template. Please read #{'https://github.com/kigster/molder'.bold.blue.underlined} for 
-    a detailed explanation of the config file structure.
+    Molder is a template-based command generator and runner for cases where 
+    you need to generate many similar and yet somewhat different commands, 
+    defined in the YAML template. Please visit #{'https://github.com/kigster/molder'.bold.blue.underlined} 
+    for a detailed explanation of the config file structure.
 
-    Note that the default configuration file is #{Molder::Configuration::DEFAULT_CONFIG.bold.green}. 
+    Note, that the default config is #{Molder::Configuration::DEFAULT_CONFIG.bold.green}. 
 
 #{'USAGE'.bold.yellow}
-        #{'molder [-c config.yml] command template1[n1..n2]/template2[n1,n2,..]/...  [options]'.bold.blue}
-        #{'molder [-c config.yml] command -t template -i index [options]'.blue.bold}
+    #{'# shorthand usage - combine multiple templates with a slash:'.bold.black}
+    #{'molder [-c config.yml] command template1[n1..n2]/...  [options]'.bold.blue}
 
-        #{'EXAMPLES'.bold.yellow}
-        #{'# The following commands assume YAML file is in the default location:'.bold.black}
-        #{'molder provision web[1,3,5]'.bold.blue}
+    #{'# alternatively, use -t and -i CLI options:'.bold.black}
+    #{'molder [-c config.yml] command -t template -i index   [options]'.blue.bold}
 
-        #{'# -n flag means dry run — so instead of running commands, just print them:'.bold.black}
-        #{'molder provision web[1..4]/job[1..4] -n'.bold.blue}
+#{'EXAMPLES'.bold.yellow}
+    #{'# The following commands assume YAML file is in the default location:'.bold.black}
+    #{'molder provision web[1,3,5]'.bold.blue}
+
+    #{'# -n flag means dry run — so instead of running commands, just print them:'.bold.black}
+    #{'molder provision web[1..4]/job[1..4] -n'.bold.blue}
+
+    #{'# Here we supply (or override) attributes "environment" and "flavor":'.bold.black}
+    #{'molder provision web[1..4]/job[1..4] -n -a environment=production \
+                                            -a flavor=c5.8xlarge'.bold.blue}
 
         eof
       end

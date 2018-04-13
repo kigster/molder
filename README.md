@@ -172,6 +172,8 @@ Let's understand this command:
  * next we pass `-a environment=production` — notice that our provision command defined in the template uses `{{ environment }}` token, even though no such attribute is defined in any of the templates. if we do not supply this argument, the value of environment in the command line would be blank.
  
    * Note that you can pass multiple attributes, separated by a slash, like so: `-a environment=production/flavor=c5.4xlarge`
+
+   * You can also pass multiple attributes by using `-a/--attrs` more than once, eg. `-a key1=value1 -a key2=value2 ....`
     
  * The final argument is the template file. The default location is `config/molder.yml` — so if you place the file in that folder you don't need to pass `-c` argument. 
  
