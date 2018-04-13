@@ -64,6 +64,7 @@ module Molder
             attributes = attrs.dup
             attributes.merge!(options.override) if options.override
             self.templates << ::Molder::Template.new(config:     config,
+                                                     options:    options,
                                                      name:       name,
                                                      indexes:    indexes,
                                                      command:    command,

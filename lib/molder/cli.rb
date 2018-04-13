@@ -132,20 +132,30 @@ module Molder
                 'The default is the number of CPU cores', ' '
                 ) { |value| options[:max_processes] = value.to_i }
 
+        opts.on('-b', '--allow-blanks',
+                'Instead of throwing error when attribute',
+                'is nil, replace it with a blank', ' ') { |_value| options[:blank] = true }
+
         opts.on('-l', '--log-dir [dir]',
                 'Folder where STDOUT of the commands is saved') { |value| options[:log_dir] = value }
 
         opts.on('-n', '--dry-run',
-                'Don\'t actually run commands, just print them') { |_value| options[:dry_run] = true }
+                'Don\'t actually run commands, just print') { |_value| options[:dry_run] = true }
 
         opts.on('-v', '--verbose',
-                'Print more output') { |_value| options[:verbose] = true }
+                'More verbose output') { |_value| options[:verbose] = true }
 
-        opts.on('-b', '--backtrace',
+        opts.on('-d', '--debug',
                 'Show error stack trace if available') { |_value| options[:backtrace] = true }
 
+        opts.on('-V', '--version',
+                'Show version') do
+          @stdout.puts Molder::VERSION
+          options[:help] = true
+        end
+
         opts.on('-h', '--help',
-                'Show help') do
+                'Show help', ' ') do
           @stdout.puts opts
           options[:help] = true
         end
@@ -163,10 +173,10 @@ module Molder
 
 #{'USAGE'.bold.yellow}
     #{'# shorthand usage - combine multiple templates with a slash:'.bold.black}
-    #{'molder [-c config.yml] command template1[n1..n2]/...  [options]'.bold.blue}
+    #{'molder [-c config.yml] command template1[n1..n2]/...  [options]'.bold.green}
 
     #{'# alternatively, use -t and -i CLI options:'.bold.black}
-    #{'molder [-c config.yml] command -t template -i index   [options]'.blue.bold}
+    #{'molder [-c config.yml] command -t template -i index   [options]'.green.bold}
 
 #{'EXAMPLES'.bold.yellow}
     #{'# The following commands assume YAML file is in the default location:'.bold.black}
@@ -187,8 +197,8 @@ module Molder
       if options[:backtrace] && exception.backtrace
         @stderr.puts exception.backtrace.reverse.join("\n").yellow.italic
       end
-      @stderr.puts "Error: #{exception.to_s.bold.red}" if exception
-      @stderr.puts "Error: #{message.bold.red}" if message
+      @stderr.puts ' • ERROR • '.white.on.red + " #{exception.to_s.bold.red}" if exception
+      @stderr.puts ' • ERROR • '.white.on.red + " #{message.bold.red}" if message
       @kernel.exit(1)
     end
 

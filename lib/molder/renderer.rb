@@ -63,18 +63,24 @@ module Molder
 
     MAX_RECURSIONS = 100
 
-    attr_accessor :template
+    attr_accessor :template, :render_opts
 
     # Create Renderer object, while storing and auto-expanding params.
-    def initialize(template)
-      self.template = template
+    def initialize(template_string, options = {})
+      self.template    = template_string
+      self.render_opts = if options[:blank]
+                           {}
+                         else
+                           { strict_variables: true }
+                         end
     end
 
     # Render given content using expanded params.
     def render(params)
       attributes      = expand_arguments(Hashie.stringify_keys(params.to_h))
       liquid_template = Liquid::Template.parse(template)
-      liquid_template.render(attributes, { strict_variables: true }).tap do
+
+      liquid_template.render(attributes, **render_opts).tap do
         unless liquid_template.errors.empty?
           raise LiquidTemplateError, "#{liquid_template.errors.map(&:message).join("\n")}"
         end

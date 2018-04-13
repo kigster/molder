@@ -1,13 +1,14 @@
 require 'molder/renderer'
 module Molder
   class Template
-    attr_accessor :config, :name, :attributes, :indexes, :command
+    attr_accessor :config, :name, :attributes, :indexes, :command, :options
 
-    def initialize(config:, name:, indexes:, attributes: {}, command:)
+    def initialize(config:, name:, indexes:, attributes: {}, command:, options: {})
       self.config     = config
       self.name       = name
       self.indexes    = indexes
       self.command    = command
+      self.options    = options
       self.attributes = self.class.normalize(attributes)
     end
 
@@ -15,7 +16,7 @@ module Molder
       indexes.map do |i|
         self.attributes[:number] = i
         self.attributes[:formatted_number] = sprintf(config.global.index_format, i)
-        ::Molder::Renderer.new(command.args).render(attributes.dup).tap do |cmd|
+        ::Molder::Renderer.new(command.args, options).render(attributes.dup).tap do |cmd|
           yield(cmd) if block_given?
         end
       end

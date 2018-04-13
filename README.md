@@ -169,7 +169,7 @@ Let's understand this command:
  
    * multiple template names can be separated by a slash, as seen here.
    
- * next we pass `-a environment=production` — notice that our provision command defined in the template uses `{{ environment }}` token, even though no such attribute is defined in any of the templates. if we do not supply this argument, the value of environment in the command line would be blank.
+ * next we pass `-a environment=production` — notice that our provision command defined in the template uses `{{ environment }}` token, even though no such attribute is defined in any of the templates. if we do not supply this argument, molder will thrown an exception, because blank attributes are not allowed.
  
    * Note that you can pass multiple attributes, separated by a slash, like so: `-a environment=production/flavor=c5.4xlarge`
 
